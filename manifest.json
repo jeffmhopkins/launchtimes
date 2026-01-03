@@ -1,0 +1,22 @@
+{
+  "name": "SpaceX Next Launches",
+  "short_name": "Launch Times",
+  "description": "Next SpaceX launches from major pads",
+  "start_url": "/launchtimes/index.html",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#58a6ff",
+  "icons": [
+    {
+      "src": "https://spacex.com/static/images/share.jpg",
+      "sizes": "1024x1024",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "https://spacex.com/static/images/share.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
