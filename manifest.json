@@ -3,9 +3,11 @@
   "short_name": "Launch Times",
   "description": "Next SpaceX launches from Falcon pads",
   "start_url": "/launchtimes/index.html",
+  "scope": "/launchtimes/",
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#58a6ff",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "logo-192x192.png",
