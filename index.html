@@ -154,6 +154,16 @@
   <link rel="apple-touch-icon" href="https://spacex.com/static/images/share.jpg">
 </head>
 <body>
+  <script>
+    // Register service worker
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(reg => console.log('SW registered: ', reg))
+          .catch(err => console.log('SW registration failed: ', err));
+      });
+    }
+  </script>
   <h1>Next SpaceX Launches</h1>
   <p class="subtitle">Soonest upcoming launch from each major Falcon pad (data as of <span id="current-date"></span>)</p>
 
