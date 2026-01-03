@@ -281,7 +281,7 @@
     // Register service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/launchtimes/sw.js')
+        navigator.serviceWorker.register('/launchtimes/service-worker.js')
           .then(reg => console.log('SW registered: ', reg))
           .catch(err => console.log('SW registration failed: ', err));
       });
