@@ -1,8 +1,8 @@
-const CACHE_NAME = 'launchtimes-v1';
+const CACHE_NAME = 'launchtimes-v2';
 const FILES_TO_CACHE = [
-  './index.html',
-  './manifest.json'
-  // Add icons here if you upload them, e.g. './icon-192.png'
+  '/launchtimes/index.html',
+  '/launchtimes/manifest.json',
+  '/launchtimes/sw.js'
 ];
 
 self.addEventListener('install', event => {
