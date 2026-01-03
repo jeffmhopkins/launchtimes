@@ -279,47 +279,11 @@
   </script>
 <script>
   if ('serviceWorker' in navigator) {
-    // Create the service worker code as a Blob
-    const swCode = `
-      const CACHE_NAME = 'launchtimes-v2';
-      const FILES_TO_CACHE = [
-        '/launchtimes/',
-        '/launchtimes/index.html',
-        '/launchtimes/manifest.json'
-        // Add custom icon paths here if you upload PNG icons
-      ];
-
-      self.addEventListener('install', event => {
-        event.waitUntil(
-          caches.open(CACHE_NAME)
-            .then(cache => cache.addAll(FILES_TO_CACHE))
-            .then(() => self.skipWaiting())
-        );
-      });
-
-      self.addEventListener('activate', event => {
-        event.waitUntil(self.clients.claim());
-      });
-
-      self.addEventListener('fetch', event => {
-        event.respondWith(
-          caches.match(event.request)
-            .then(response => response || fetch(event.request))
-        );
-      });
-    `;
-
-    // Register the inline service worker using a Blob URL
-    const blob = new Blob([swCode], { type: 'application/javascript' });
-    const blobURL = URL.createObjectURL(blob);
-
-    navigator.serviceWorker.register(blobURL)
-      .then(reg => {
-        console.log('Inline SW registered!', reg.scope);
-      })
-      .catch(err => {
-        console.error('Inline SW registration failed:', err);
-      });
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('SW registered!', reg))
+        .catch(err => console.error('SW failed:', err));
+    });
   }
 </script>
 </body>
