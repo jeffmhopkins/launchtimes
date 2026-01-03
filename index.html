@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SpaceX Next Launches</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #0d1117;
+      color: #c9d1d9;
+      margin: 0;
+      padding: 30px 20px;
+      min-height: 100vh;
+      text-align: center;
+    }
+    h1 {
+      color: #58a6ff;
+      font-weight: 600;
+      margin-bottom: 8px;
+      font-size: 2.2em;
+    }
+    .subtitle {
+      color: #8b949e;
+      font-size: 1.1em;
+      margin-bottom: 40px;
+    }
+    .pads {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      max-width: 500px; /* Limits width so cards stay centered and stacked */
+      margin: 0 auto;
+    }
+    .pad {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 420px; /* Comfortable card width */
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    .pad-header {
+      background: #1f252e;
+      padding: 28px 20px;
+      cursor: pointer;
+      user-select: none;
+      border-bottom: 1px solid #30363d;
+    }
+    .pad-header h2 {
+      color: #f0f6fc;
+      margin: 0 0 16px 0;
+      font-size: 1.9em;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+    .countdown {
+      font-size: 2.4em;
+      font-weight: 700;
+      color: #58a6ff;
+      margin: 0;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pad-body {
+      overflow: hidden;
+      max-height: 1000px;
+      transition: max-height 0.5s ease;
+    }
+    .pad.collapsed .pad-body {
+      max-height: 0;
+    }
+    .pad-content {
+      padding: 24px;
+    }
+    .location {
+      color: #8b949e;
+      font-size: 1.05em;
+      margin: 0 0 20px 0;
+    }
+    .time-info {
+      background: #0d1117;
+      border-radius: 6px;
+      padding: 18px;
+      margin: 20px 0;
+      border: 1px solid #30363d;
+    }
+    .utc-time, .local-time {
+      margin: 12px 0;
+      font-size: 1.1em;
+      line-height: 1.4;
+    }
+    .time-label {
+      color: #58a6ff;
+      font-weight: 600;
+      margin-right: 8px;
+    }
+    .mission {
+      font-size: 1.5em;
+      font-weight: 600;
+      color: #c9d1d9;
+      margin: 24px 0 16px;
+      line-height: 1.3;
+    }
+    .patch {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .patch img {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 6px;
+      border: 1px solid #30363d;
+    }
+    .none {
+      color: #8b949e;
+      font-style: italic;
+      font-size: 1.4em;
+      margin: 30px 0;
+    }
+    .loading {
+      color: #8b949e;
+      font-size: 1.3em;
+      margin: 60px 0;
+    }
+    footer {
+      margin-top: 80px;
+      font-size: 0.95em;
+      color: #8b949e;
+    }
+    footer a {
+      color: #58a6ff;
+      text-decoration: none;
+    }
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Next SpaceX Launches</h1>
+  <p class="subtitle">Soonest upcoming launch from each major Falcon pad (data as of <span id="current-date"></span>)</p>
+
+  <div class="pads" id="pads-container">
+    <div class="loading">Loading launch data...</div>
+  </div>
+
+  <footer>Data from <a href="https://thespacedevs.com/launchlibrary">Launch Library 2 API</a> by The Space Devs</footer>
+
+  <script>
+    const PADS = {
+      "39A": { name: "LC-39A", location: "Kennedy Space Center, Florida" },
+      "40": { name: "SLC-40", location: "Cape Canaveral Space Force Station, Florida" },
+      "4E": { name: "SLC-4E", location: "Vandenberg Space Force Base, California" }
+    };
+
+    function formatCountdown(ms) {
+      if (ms > 0) {
+        const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((ms % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const mins = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
+        const secs = Math.floor((ms % (1000 * 60)) / 1000);
+        const dayStr = days > 0 ? `${days}d ` : '';
+        return `T-${dayStr}${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      }
+      return "T+00:00:00";
+    }
+
+    function updateCountdowns() {
+      document.querySelectorAll('.countdown').forEach(el => {
+        if (el.dataset.utc) {
+          const launchTime = new Date(el.dataset.utc).getTime();
+          const now = Date.now();
+          const diff = launchTime - now;
+          el.textContent = formatCountdown(diff);
+        }
+      });
+    }
+
+    async function loadLaunches() {
+      try {
+        const response = await fetch('https://ll.thespacedevs.com/2.2.0/launch/upcoming/?limit=50&search=SpaceX');
+        const data = await response.json();
+        const launches = data.results || [];
+
+        launches.sort((a, b) => new Date(a.net) - new Date(b.net));
+
+        const nextByPad = {};
+        for (const launch of launches) {
+          const padName = launch.pad?.name || '';
+          let padKey;
+          if (padName.includes('39A')) padKey = '39A';
+          else if (padName.includes('40') && !padName.includes('39A')) padKey = '40';
+          else if (padName.includes('4E')) padKey = '4E';
+
+          if (padKey && !nextByPad[padKey]) {
+            nextByPad[padKey] = launch;
+          }
+        }
+
+        const container = document.getElementById('pads-container');
+        container.innerHTML = '';
+
+        Object.entries(PADS).forEach(([key, info]) => {
+          const launch = nextByPad[key] || null;
+
+          const padDiv = document.createElement('div');
+          padDiv.className = 'pad collapsed';
+
+          const headerHTML = `
+            <div class="pad-header">
+              <h2>${info.name}</h2>
+              <div class="countdown" ${launch ? `data-utc="${launch.net}"` : ''}>
+                ${launch ? 'Calculating...' : '—'}
+              </div>
+            </div>
+          `;
+
+          let contentHTML = '';
+          if (launch) {
+            const utcDate = new Date(launch.net);
+            const localDate = utcDate.toLocaleString();
+
+            contentHTML = `
+              <div class="location">${info.location}</div>
+              <div class="time-info">
+                <div class="utc-time"><span class="time-label">UTC:</span> ${utcDate.toUTCString()}</div>
+                <div class="local-time"><span class="time-label">Local:</span> ${localDate}</div>
+              </div>
+              <div class="mission">${launch.name}</div>
+              ${launch.image ? `<div class="patch"><img src="${launch.image}" alt="Mission patch"></div>` : ''}
+            `;
+          } else {
+            contentHTML = `
+              <div class="location">${info.location}</div>
+              <p class="none">No upcoming launch scheduled</p>
+            `;
+          }
+
+          padDiv.innerHTML = headerHTML + 
+            `<div class="pad-body"><div class="pad-content">${contentHTML}</div></div>`;
+
+          const header = padDiv.querySelector('.pad-header');
+          header.addEventListener('click', (e) => {
+            e.stopPropagation();
+            padDiv.classList.toggle('collapsed');
+          });
+
+          container.appendChild(padDiv);
+        });
+
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString();
+
+        updateCountdowns();
+        setInterval(updateCountdowns, 1000);
+      } catch (err) {
+        document.getElementById('pads-container').innerHTML = '<p style="color:#f85149;">Error loading data. Please try again later.</p>';
+        console.error(err);
+      }
+    }
+
+    loadLaunches();
+  </script>
+</body>
+</html>
