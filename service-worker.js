@@ -1,9 +1,10 @@
 const CACHE_NAME = 'launchtimes-v2';
 const FILES_TO_CACHE = [
+  '/launchtimes/',
   '/launchtimes/index.html',
-  '/launchtimes/manifest.json',
-  '/launchtimes/sw.js'
+  '/launchtimes/manifest.json'
 ];
+
 
 self.addEventListener('install', event => {
   event.waitUntil(
