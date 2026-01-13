@@ -1,5 +1,5 @@
 # Launch Timelines
-* Live at https://jeffmhopkins.github.io/launchtimes/
+* Live at https://LetsFalconGo.app
 * Displays launch times for the three Falcon 9 Launch Pads
 * No ads or extra clicks for easy T-Time
 * API from https://thespacedevs.com/llapi
