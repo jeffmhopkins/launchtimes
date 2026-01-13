@@ -1,8 +1,8 @@
 const CACHE_NAME = 'launchtimes-v3';
 const FILES_TO_CACHE = [
-  '/launchtimes/',
-  '/launchtimes/index.html',
-  '/launchtimes/manifest.json'
+  '/',
+  '/index.html',
+  '/manifest.json'
 ];
 
 self.addEventListener('install', event => {
